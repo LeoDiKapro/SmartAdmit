@@ -1,0 +1,101 @@
+﻿@model AdmissionsPortal.ViewModels.ApplicationViewModel
+
+@{
+    ViewData["Title"] = "Apply for Master's";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <h2 class="mb-4">Master's Application Form</h2>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">Please fix the errors below.</div>
+    }
+
+    <form asp-action="Apply" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="UniversityId" class="form-label"></label>
+            <select asp-for="UniversityId" asp-items="Model.Universities"
+                    class="form-select" id="universitySelect">
+                <option value="">-- Select University --</option>
+            </select>
+            <span asp-validation-for="UniversityId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MasterProgramId" class="form-label"></label>
+            <select asp-for="MasterProgramId" class="form-select" id="programSelect">
+                <option value="">-- Select University First --</option>
+            </select>
+            <span asp-validation-for="MasterProgramId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="GPA" class="form-label"></label>
+            <input asp-for="GPA" class="form-control" placeholder="e.g. 3.50" />
+            <span asp-validation-for="GPA" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StudyYears" class="form-label"></label>
+            <input asp-for="StudyYears" class="form-control" placeholder="e.g. 3" />
+            <span asp-validation-for="StudyYears" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DiplomaStatus" class="form-label"></label>
+            <select asp-for="DiplomaStatus" class="form-select"
+                    asp-items="Html.GetEnumSelectList<AdmissionsPortal.Models.DiplomaStatus>()">
+            </select>
+            <span asp-validation-for="DiplomaStatus" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Transcript" class="form-label"></label>
+            <input asp-for="Transcript" type="file" class="form-control" accept=".pdf,.jpg,.png" />
+            <span asp-validation-for="Transcript" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3" id="diplomaField">
+            <label asp-for="Diploma" class="form-label"></label>
+            <input asp-for="Diploma" type="file" class="form-control" accept=".pdf,.jpg,.png" />
+            <small class="text-muted">Not required if diploma status is Ongoing.</small>
+            <span asp-validation-for="Diploma" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Submit Application</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Dynamically load master programs when university changes
+        document.getElementById('universitySelect').addEventListener('change', function () {
+            const uniId = this.value;
+            const programSelect = document.getElementById('programSelect');
+            programSelect.innerHTML = '<option value="">Loading...</option>';
+
+            if (!uniId) {
+                programSelect.innerHTML = '<option value="">-- Select University First --</option>';
+                return;
+            }
+
+            fetch(`/Application/GetPrograms?universityId=${uniId}`)
+                .then(r => r.json())
+                .then(data => {
+                    programSelect.innerHTML = '<option value="">-- Select Program --</option>';
+                    data.forEach(p => {
+                        programSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                    });
+                });
+        });
+
+        // Hide diploma field when Ongoing is selected
+        document.querySelector('[name="DiplomaStatus"]').addEventListener('change', function () {
+            document.getElementById('diplomaField').style.display =
+                this.value === '1' ? 'none' : 'block'; // 1 = Ongoing enum value
+        });
+    </script>
+}

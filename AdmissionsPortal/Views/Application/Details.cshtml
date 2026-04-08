@@ -1,0 +1,64 @@
+﻿@model AdmissionsPortal.Models.Application
+
+@{
+    ViewData["Title"] = "Application Details";
+}
+
+<div class="container mt-4" style="max-width: 700px;">
+    <a asp-action="MyApplications" class="btn btn-outline-secondary mb-3">← Back</a>
+    <h2 class="mb-4">Application Details</h2>
+
+    <dl class="row">
+        <dt class="col-sm-4">University</dt>
+        <dd class="col-sm-8">@Model.University.Name</dd>
+
+        <dt class="col-sm-4">Program</dt>
+        <dd class="col-sm-8">@Model.MasterProgram.Name</dd>
+
+        <dt class="col-sm-4">GPA</dt>
+        <dd class="col-sm-8">@Model.GPA.ToString("F2")</dd>
+
+        <dt class="col-sm-4">Years of Study</dt>
+        <dd class="col-sm-8">@Model.StudyYears</dd>
+
+        <dt class="col-sm-4">Diploma Status</dt>
+        <dd class="col-sm-8">@Model.DiplomaStatus</dd>
+
+        <dt class="col-sm-4">Submitted</dt>
+        <dd class="col-sm-8">@Model.SubmittedAt.ToString("dd MMM yyyy HH:mm")</dd>
+
+        <dt class="col-sm-4">Status</dt>
+        <dd class="col-sm-8">
+            @{
+                var badge = Model.Status switch
+                {
+                    AdmissionsPortal.Models.ApplicationStatus.UnderReview => "bg-warning text-dark",
+                    AdmissionsPortal.Models.ApplicationStatus.AutoRejected => "bg-danger",
+                    AdmissionsPortal.Models.ApplicationStatus.Accepted => "bg-success",
+                    _ => "bg-secondary"
+                };
+            }
+            <span class="badge @badge">@Model.Status</span>
+        </dd>
+    </dl>
+
+    <h5 class="mt-4">Submitted Documents</h5>
+    @if (!Model.Documents.Any())
+    {
+        <p class="text-muted">No documents found.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var doc in Model.Documents)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@doc.Type — @doc.FileName</span>
+                    <a href="/@doc.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">
+                        View
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</div>
