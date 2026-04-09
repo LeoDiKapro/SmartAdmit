@@ -40,6 +40,10 @@ namespace AdmissionsPortal.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Apply(ApplicationViewModel vm)
         {
+            vm.LanguageEntries ??= new List<string>();
+
+            vm.LanguageCertificates ??= new List<IFormFile?>();
+
             if (vm.Transcript == null)
                 ModelState.AddModelError("Transcript", "Transcript is required.");
 
@@ -64,7 +68,8 @@ namespace AdmissionsPortal.Controllers
                 GPA = vm.GPA,
                 StudyYears = vm.StudyYears,
                 DiplomaStatus = vm.DiplomaStatus,
-                Status = ApplicationStatus.Draft,  
+                MotherTongue = vm.MotherTongue,
+                Status = ApplicationStatus.Draft,
                 SubmittedAt = DateTime.UtcNow
             };
 
@@ -79,9 +84,41 @@ namespace AdmissionsPortal.Controllers
             if (vm.Diploma != null)
                 await SaveDocument(vm.Diploma, DocumentType.Diploma, application.Id, uploadsFolder);
 
-            await _db.SaveChangesAsync();
+            // Save languages
+            if (vm.LanguageEntries != null)
+            for (int i = 0; i < vm.LanguageEntries.Count; i++)
+            {
+                var parts = vm.LanguageEntries[i].Split('|');
+                if (parts.Length != 2) continue;
 
-            // Go to step 2 — upload additional documents
+                var appLang = new ApplicationLanguage
+                {
+                    ApplicationId = application.Id,
+                    Language = parts[0],
+                    Level = parts[1]
+                };
+
+                // Save certificate if provided for this language
+                var cert = i < vm.LanguageCertificates.Count ? vm.LanguageCertificates[i] : null;
+                if (cert != null)
+                {
+                    var allowed = new[] { "application/pdf", "image/jpeg", "image/png" };
+                    if (allowed.Contains(cert.ContentType))
+                    {
+                        var uniqueName = $"lang_{Guid.NewGuid()}{Path.GetExtension(cert.FileName)}";
+                        var fullPath = Path.Combine(uploadsFolder, uniqueName);
+                        using var stream = new FileStream(fullPath, FileMode.Create);
+                        await cert.CopyToAsync(stream);
+
+                        appLang.CertificatePath = Path.Combine("uploads", application.Id.ToString(), uniqueName);
+                        appLang.CertificateFileName = cert.FileName;
+                    }
+                }
+
+                _db.ApplicationLanguages.Add(appLang);
+            }
+
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(UploadDocuments), new { id = application.Id });
         }
 
@@ -107,6 +144,7 @@ namespace AdmissionsPortal.Controllers
                 .Include(a => a.University)
                 .Include(a => a.MasterProgram)
                 .Include(a => a.Documents)
+                .Include(a => a.Languages)
                 .FirstOrDefaultAsync(a => a.Id == id && a.StudentId == student!.Id);
 
             if (app == null) return NotFound();

@@ -46,6 +46,14 @@ namespace AdmissionsPortal.Models
         [Required]
         public DiplomaStatus DiplomaStatus { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        [Display(Name = "Mother Tongue")]
+        public string MotherTongue { get; set; } = string.Empty;
+
+        // Navigation
+        public ICollection<ApplicationLanguage> Languages { get; set; } = new List<ApplicationLanguage>();
+
         // Auto-screening result
         public ApplicationStatus Status { get; set; } = ApplicationStatus.Pending;
 

@@ -35,6 +35,19 @@ namespace AdmissionsPortal.ViewModels
         [Display(Name = "Diploma (PDF)")]
         public IFormFile? Diploma { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        [Display(Name = "Mother Tongue")]
+        public string MotherTongue { get; set; } = string.Empty;
+            
+        // Each entry is "Language|Level" e.g. "English|B2"
+        // Sent as a hidden field list from JavaScript
+        public List<string> LanguageEntries { get; set; } = new();
+
+        // One certificate file per language (matched by index)
+        public List<IFormFile?> LanguageCertificates { get; set; } = new();
+
+
         // Populated by the controller for the dropdowns
         public IEnumerable<SelectListItem> Universities { get; set; } = new List<SelectListItem>();
         public IEnumerable<SelectListItem> MasterPrograms { get; set; } = new List<SelectListItem>();

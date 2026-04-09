@@ -12,6 +12,7 @@ namespace AdmissionsPortal.Data
         public DbSet<MasterProgram> MasterPrograms { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<ApplicationLanguage> ApplicationLanguages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -38,6 +38,7 @@
             <span asp-validation-for="GPA" class="text-danger"></span>
         </div>
 
+
         <div class="mb-3">
             <label asp-for="StudyYears" class="form-label"></label>
             <input asp-for="StudyYears" class="form-control" placeholder="e.g. 3" />
@@ -51,6 +52,32 @@
             </select>
             <span asp-validation-for="DiplomaStatus" class="text-danger"></span>
         </div>
+
+        <div class="mb-3">
+            <label asp-for="MotherTongue" class="form-label"></label>
+            <select asp-for="MotherTongue" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Albanian">Albanian</option>
+                <option value="English">English</option>
+                <option value="Italian">Italian</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Spanish">Spanish</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="MotherTongue" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Foreign Languages</label>
+            <div id="languageRows"></div>
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2"
+                    onclick="addLanguageRow()">
+                + Add Language
+            </button>
+        </div>
+
+        <div id="languageData"></div>
 
         <div class="mb-3">
             <label asp-for="Transcript" class="form-label"></label>
@@ -97,5 +124,63 @@
             document.getElementById('diplomaField').style.display =
                 this.value === '1' ? 'none' : 'block'; // 1 = Ongoing enum value
         });
+
+        let langCount = 0;
+
+        const languages = ["English","Italian","French","German","Spanish",
+                           "Portuguese","Albanian","Other"];
+        const levels    = ["A1","A2","B1","B2","C1","C2","Native"];
+
+        function addLanguageRow() {
+            const idx = langCount++;
+            const row = document.createElement('div');
+            row.className = 'card mb-2 p-3';
+            row.id = `langRow_${idx}`;
+            row.innerHTML = `
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Language</label>
+                        <select class="form-select lang-select" id="lang_${idx}"
+                                onchange="updateEntry(${idx})">
+                            <option value="">-- Select --</option>
+                            ${languages.map(l => `<option value="${l}">${l}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Level</label>
+                        <select class="form-select level-select" id="level_${idx}"
+                                onchange="updateEntry(${idx})">
+                            <option value="">-- Select --</option>
+                            ${levels.map(l => `<option value="${l}">${l}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Certificate (optional)</label>
+                        <input type="file" name="LanguageCertificates"
+                               class="form-control" accept=".pdf,.jpg,.png" />
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                onclick="removeRow(${idx})">✕</button>
+                    </div>
+                </div>
+                <input type="hidden" name="LanguageEntries" id="entry_${idx}" value="" />
+            `;
+            document.getElementById('languageRows').appendChild(row);
+        }
+
+        function updateEntry(idx) {
+            const lang  = document.getElementById(`lang_${idx}`).value;
+            const level = document.getElementById(`level_${idx}`).value;
+            document.getElementById(`entry_${idx}`).value = `${lang}|${level}`;
+        }
+
+        function removeRow(idx) {
+            const row = document.getElementById(`langRow_${idx}`);
+            if (row) row.remove();
+        }
+
+        // Start with one language row by default
+        addLanguageRow();
     </script>
 }

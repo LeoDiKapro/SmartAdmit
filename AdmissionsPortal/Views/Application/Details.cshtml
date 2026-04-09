@@ -9,6 +9,36 @@
     <h2 class="mb-4">Application Details</h2>
 
     <dl class="row">
+        <h5 class="mt-4">Languages</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Language</th>
+                        <th>Level</th>
+                        <th>Certificate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lang in Model.Languages)
+                    {
+                        <tr>
+                            <td>@lang.Language</td>
+                            <td>@lang.Level</td>
+                            <td>
+                                @if (lang.CertificatePath != null)
+                                {
+                                    <a href="/@lang.CertificatePath" target="_blank"
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         <dt class="col-sm-4">University</dt>
         <dd class="col-sm-8">@Model.University.Name</dd>
 
