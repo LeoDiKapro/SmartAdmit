@@ -1,0 +1,80 @@
+﻿@model AdmissionsPortal.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2 class="mb-4">Edit Profile</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Country" class="form-label"></label>
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber2" class="form-label"></label>
+                <input asp-for="PhoneNumber2" class="form-control" />
+                <span asp-validation-for="PhoneNumber2" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DateOfBirth" class="form-label"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Nationality" class="form-label"></label>
+                <input asp-for="Nationality" class="form-control" />
+                <span asp-validation-for="Nationality" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NationalId" class="form-label"></label>
+                <input asp-for="NationalId" class="form-control" />
+                <span asp-validation-for="NationalId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">Save Changes</button>
+
+        <a asp-controller="Application" asp-action="MyApplications"
+               class="btn btn-outline-primary w-100 mt-2">
+            View My Applications
+        </a>
+    </form>
+</div>

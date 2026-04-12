@@ -28,6 +28,9 @@ namespace AdmissionsPortal.Controllers
         // GET /Application/Apply 
         public async Task<IActionResult> Apply()
         {
+            var student = await _userManager.GetUserAsync(User);
+            if (!student!.ProfileCompleted)
+                return RedirectToAction("Complete", "Profile");
             var vm = new ApplicationViewModel
             {
                 Universities = await GetUniversityList()
@@ -126,6 +129,8 @@ namespace AdmissionsPortal.Controllers
         public async Task<IActionResult> MyApplications()
         {
             var student = await _userManager.GetUserAsync(User);
+            if (!student!.ProfileCompleted)
+                return RedirectToAction("Complete", "Profile");
             var apps = await _db.Applications
                 .Include(a => a.University)
                 .Include(a => a.MasterProgram)

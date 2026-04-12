@@ -1,0 +1,77 @@
+﻿@model AdmissionsPortal.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Complete Your Profile";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="alert alert-info">
+        Please complete your profile before submitting an application.
+        This information will be attached to all your applications.
+    </div>
+
+    <h2 class="mb-4">Your Profile</h2>
+
+    <form asp-action="Complete" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Country" class="form-label"></label>
+                <input asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber2" class="form-label"></label>
+                <input asp-for="PhoneNumber2" class="form-control" placeholder="+355 69 123 4567" />
+                <span asp-validation-for="PhoneNumber2" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DateOfBirth" class="form-label"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Nationality" class="form-label"></label>
+                <input asp-for="Nationality" class="form-control" placeholder="e.g. Albanian" />
+                <span asp-validation-for="Nationality" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NationalId" class="form-label"></label>
+                <input asp-for="NationalId" class="form-control" placeholder="ID or Passport number" />
+                <span asp-validation-for="NationalId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">
+            Save & Continue to Application
+        </button>
+    </form>
+</div>
