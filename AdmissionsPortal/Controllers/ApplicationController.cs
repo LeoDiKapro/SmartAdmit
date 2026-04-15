@@ -62,6 +62,24 @@ namespace AdmissionsPortal.Controllers
 
             var student = await _userManager.GetUserAsync(User);
 
+            // Prevent duplicate applications
+            var existingApplication = await _db.Applications
+                .FirstOrDefaultAsync(a =>
+                    a.StudentId == student!.Id &&
+                    a.UniversityId == vm.UniversityId &&
+                    a.MasterProgramId == vm.MasterProgramId &&
+                    a.Status != ApplicationStatus.AutoRejected);  // allow re-apply if rejected
+
+            if (existingApplication != null)
+            {
+                ModelState.AddModelError(string.Empty,
+                    "You have already applied to this program at this university. " +
+                    "You can only re-apply if your previous application was rejected.");
+                vm.Universities = await GetUniversityList();
+                vm.MasterPrograms = await GetProgramList(vm.UniversityId);
+                return View(vm);
+            }
+
             // Save as Draft — not yet visible to admin, not yet screened
             var application = new Application
             {
@@ -273,7 +291,7 @@ namespace AdmissionsPortal.Controllers
             if (app.Status != ApplicationStatus.Draft)
                 return RedirectToAction(nameof(MyApplications));
 
-            // ── Auto-screening runs HERE ──────────────────────────────────────────────
+            //  Auto-screening runs HERE 
             app.Status = (app.GPA < app.University.MinGPA || app.StudyYears < app.University.MinYears)
                 ? ApplicationStatus.AutoRejected
                 : ApplicationStatus.UnderReview;
