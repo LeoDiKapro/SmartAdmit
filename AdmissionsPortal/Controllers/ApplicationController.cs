@@ -143,6 +143,8 @@ namespace AdmissionsPortal.Controllers
             return RedirectToAction(nameof(UploadDocuments), new { id = application.Id });
         }
 
+
+        
         // GET /Application/MyApplications 
         public async Task<IActionResult> MyApplications()
         {
@@ -159,7 +161,7 @@ namespace AdmissionsPortal.Controllers
             return View(apps);
         }
 
-        // GET /Application/Details/5 
+        // GET /Application/Details
         public async Task<IActionResult> Details(int id)
         {
             var student = await _userManager.GetUserAsync(User);
@@ -172,6 +174,32 @@ namespace AdmissionsPortal.Controllers
 
             if (app == null) return NotFound();
             return View(app);
+        }
+
+        // POST Application/Withdraw
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Withdraw(int id)
+        {
+            var student = await _userManager.GetUserAsync(User);
+            var app = await _db.Applications
+                .FirstOrDefaultAsync(a => a.Id == id && a.StudentId == student!.Id);
+
+            if (app == null) return NotFound();
+
+            // Only allow withdrawing Draft or UnderReview applications
+            if (app.Status != ApplicationStatus.Draft &&
+                app.Status != ApplicationStatus.UnderReview)
+            {
+                TempData["Error"] = "This application cannot be withdrawn.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            app.Status = ApplicationStatus.Withdrawn;
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Your application has been withdrawn.";
+            return RedirectToAction(nameof(MyApplications));
         }
 
         // AJAX: GET /Application/GetPrograms?universityId=1 

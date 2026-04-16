@@ -91,4 +91,23 @@
             }
         </ul>
     }
+    @if (Model.Status == AdmissionsPortal.Models.ApplicationStatus.Draft ||
+         Model.Status == AdmissionsPortal.Models.ApplicationStatus.UnderReview)
+    {
+        <div class="card border-danger mt-4">
+            <div class="card-body">
+                <h5 class="card-title text-danger">Withdraw Application</h5>
+                <p class="text-muted">
+                    This action cannot be undone. Your application will be permanently withdrawn.
+                </p>
+                <form asp-action="Withdraw" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to withdraw this application?')">
+                        Withdraw Application
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
 </div>

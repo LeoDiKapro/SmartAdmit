@@ -15,6 +15,7 @@ namespace AdmissionsPortal.Models
         Pending,
         AutoRejected,
         UnderReview,
+        Withdrawn,
         Accepted
     }
 
