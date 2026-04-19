@@ -144,23 +144,6 @@ namespace AdmissionsPortal.Controllers
         }
 
 
-        
-        // GET /Application/MyApplications 
-        public async Task<IActionResult> MyApplications()
-        {
-            var student = await _userManager.GetUserAsync(User);
-            if (!student!.ProfileCompleted)
-                return RedirectToAction("Complete", "Profile");
-            var apps = await _db.Applications
-                .Include(a => a.University)
-                .Include(a => a.MasterProgram)
-                .Where(a => a.StudentId == student!.Id)
-                .OrderByDescending(a => a.SubmittedAt)
-                .ToListAsync();
-
-            return View(apps);
-        }
-
         // GET /Application/Details
         public async Task<IActionResult> Details(int id)
         {
@@ -199,7 +182,7 @@ namespace AdmissionsPortal.Controllers
             await _db.SaveChangesAsync();
 
             TempData["Success"] = "Your application has been withdrawn.";
-            return RedirectToAction(nameof(MyApplications));
+            return RedirectToAction(nameof(Dashboard));
         }
 
         // AJAX: GET /Application/GetPrograms?universityId=1 
@@ -317,7 +300,7 @@ namespace AdmissionsPortal.Controllers
 
             // Only allow submitting a draft
             if (app.Status != ApplicationStatus.Draft)
-                return RedirectToAction(nameof(MyApplications));
+                return RedirectToAction(nameof(Dashboard));
 
             //  Auto-screening runs HERE 
             app.Status = (app.GPA < app.University.MinGPA || app.StudyYears < app.University.MinYears)
@@ -331,7 +314,33 @@ namespace AdmissionsPortal.Controllers
                 ? "Your application was submitted but did not meet the minimum requirements."
                 : "Your application was submitted successfully and is under review!";
 
-            return RedirectToAction(nameof(MyApplications));
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        // ── GET /Application/Dashboard ───────────────────────────────────────────────
+        public async Task<IActionResult> Dashboard()
+        {
+            var student = await _userManager.GetUserAsync(User);
+
+            if (!student!.ProfileCompleted)
+                return RedirectToAction("Complete", "Profile");
+
+            var apps = await _db.Applications
+                .Include(a => a.University)
+                .Include(a => a.MasterProgram)
+                .Where(a => a.StudentId == student.Id)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            ViewBag.StudentName = student.FullName;
+            ViewBag.Total = apps.Count;
+            ViewBag.UnderReview = apps.Count(a => a.Status == ApplicationStatus.UnderReview);
+            ViewBag.Accepted = apps.Count(a => a.Status == ApplicationStatus.Accepted);
+            ViewBag.Rejected = apps.Count(a => a.Status == ApplicationStatus.AutoRejected);
+            ViewBag.Drafts = apps.Count(a => a.Status == ApplicationStatus.Draft);
+            ViewBag.Withdrawn = apps.Count(a => a.Status == ApplicationStatus.Withdrawn);
+
+            return View(apps);
         }
     }
 }

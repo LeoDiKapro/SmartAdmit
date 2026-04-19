@@ -66,7 +66,12 @@ namespace AdmissionsPortal.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity!.IsAuthenticated)
-                return RedirectToAction("Index", "Home");
+            {
+                if (User.IsInRole("Student"))
+                    return RedirectToAction("Dashboard", "Application");
+                else if (User.IsInRole("Admin"))
+                    return RedirectToAction("Index", "Admin");
+            }
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -91,13 +96,12 @@ namespace AdmissionsPortal.Controllers
             {
                 // Redirect admin to admin dashboard, students to home
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                if (await _userManager.IsInRoleAsync(user!, "Admin"))
+                if (await _userManager.IsInRoleAsync(user!, "Student"))
+                    return RedirectToAction("Dashboard", "Application");
+                else if (await _userManager.IsInRoleAsync(user!, "Admin"))
+                    return RedirectToAction("Index", "Admin");
+                else
                     return RedirectToAction("Index", "Home");
-
-                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                    return Redirect(returnUrl);
-
-                return RedirectToAction("Index", "Home");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid email or password");

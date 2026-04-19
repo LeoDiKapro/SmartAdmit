@@ -5,6 +5,8 @@
 }
 
 <div class="container mt-4" style="max-width: 600px;">
+    <a asp-controller="Application" asp-action="Dashboard" class="btn btn-outline-secondary mb-3">← Back</a>
+
     <h2 class="mb-4">Edit Profile</h2>
 
     @if (TempData["Success"] != null)
@@ -71,10 +73,5 @@
         </div>
 
         <button type="submit" class="btn btn-primary w-100 mt-4">Save Changes</button>
-
-        <a asp-controller="Application" asp-action="MyApplications"
-               class="btn btn-outline-primary w-100 mt-2">
-            View My Applications
-        </a>
     </form>
 </div>
