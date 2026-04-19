@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.TotalStudents</h2>
+                    <small class="text-muted">Students</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.TotalReps</h2>
+                    <small class="text-muted">University Staff</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.TotalApplications</h2>
+                    <small class="text-muted">Total Applications</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.TotalUniversities</h2>
+                    <small class="text-muted">Universities</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.TotalPrograms</h2>
+                    <small class="text-muted">Master Programs</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Manage</h4>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a asp-action="Staff" class="card text-decoration-none text-dark border-0 bg-light h-100">
+                <div class="card-body">
+                    <h5>👥 University Staff</h5>
+                    <p class="text-muted mb-0">Create and manage university rep accounts</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Students" class="card text-decoration-none text-dark border-0 bg-light h-100">
+                <div class="card-body">
+                    <h5>🎓 Students</h5>
+                    <p class="text-muted mb-0">View and manage student accounts</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-action="Universities" class="card text-decoration-none text-dark border-0 bg-light h-100">
+                <div class="card-body">
+                    <h5>🏛️ Universities</h5>
+                    <p class="text-muted mb-0">View universities and their programs</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

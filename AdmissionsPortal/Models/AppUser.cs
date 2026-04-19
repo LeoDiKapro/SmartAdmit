@@ -45,6 +45,10 @@ namespace AdmissionsPortal.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Only populated for UniversityRep accounts
+        public int? UniversityId { get; set; }
+        public University? University { get; set; }
+
         // Navigation
         public ICollection<Application> Applications { get; set; } = new List<Application>();
 
