@@ -294,6 +294,7 @@ namespace AdmissionsPortal.Controllers
             var student = await _userManager.GetUserAsync(User);
             var app = await _db.Applications
                 .Include(a => a.University)
+                .Include(a => a.MasterProgram)
                 .FirstOrDefaultAsync(a => a.Id == applicationId && a.StudentId == student!.Id);
 
             if (app == null) return NotFound();
@@ -303,7 +304,7 @@ namespace AdmissionsPortal.Controllers
                 return RedirectToAction(nameof(Dashboard));
 
             //  Auto-screening runs HERE 
-            app.Status = (app.GPA < app.University.MinGPA || app.StudyYears < app.University.MinYears)
+            app.Status = (app.GPA < app.MasterProgram.MinGPA || app.StudyYears < app.MasterProgram.MinYears)
                 ? ApplicationStatus.AutoRejected
                 : ApplicationStatus.UnderReview;
 

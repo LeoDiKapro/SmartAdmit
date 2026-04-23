@@ -11,11 +11,19 @@ namespace AdmissionsPortal.Models
         [StringLength(200)]
         public string Name { get; set; } = string.Empty;
 
-        // Foreign key
+        [Required]
+        [Range(0.0, 4.0)]
+        [Display(Name = "Minimum GPA")]
+        public decimal MinGPA { get; set; }
+
+        [Required]
+        [Range(1, 10)]
+        [Display(Name = "Minimum Years of Study")]
+        public int MinYears { get; set; }
+
         public int UniversityId { get; set; }
         public University University { get; set; } = null!;
 
-        // Navigation
         public ICollection<Application> Applications { get; set; } = new List<Application>();
     }
 }

@@ -1,0 +1,76 @@
+﻿@model IEnumerable<AdmissionsPortal.Models.MasterProgram>
+
+@{
+    ViewData["Title"] = "Manage Programs";
+    var uni = ViewBag.University as AdmissionsPortal.Models.University;
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <a asp-action="Universities" class="btn btn-outline-secondary mb-3">← Back</a>
+    <h2 class="mb-1">Programs</h2>
+    <p class="text-muted mb-4">@uni!.Name</p>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Add New Program</h5>
+            <form asp-action="AddProgram" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="UniversityId" value="@uni.Id" />
+
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" name="Name" class="form-control"
+                               placeholder="Program name" required />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="MinGPA" class="form-control"
+                               placeholder="Min GPA" step="0.1" min="0" max="4" required />
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" name="MinYears" class="form-control"
+                               placeholder="Min Years" min="1" max="10" required />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Add Program</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <p class="text-muted">No programs yet. Add one above.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var program in Model)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@program.Name</strong>
+                        <small class="text-muted ms-2">
+                            Min GPA: @program.MinGPA.ToString("F1") |
+                            Min Years: @program.MinYears
+                        </small>
+                    </div>
+                    <form asp-action="DeleteProgram" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@program.Id" />
+                        <input type="hidden" name="universityId" value="@uni.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this program?')">
+                            Delete
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+</div>

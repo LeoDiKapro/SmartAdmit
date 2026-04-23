@@ -18,28 +18,40 @@ namespace AdmissionsPortal.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<University>()
+                .HasMany(u => u.MasterPrograms)
+                .WithOne(p => p.University)
+                .HasForeignKey(p => p.UniversityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<MasterProgram>()
+                .HasMany(p => p.Applications)
+                .WithOne(a => a.MasterProgram)
+                .HasForeignKey(a => a.MasterProgramId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Seed universities + programs so the dropdown has data immediately
             builder.Entity<University>().HasData(
-                new University { Id = 1, Name = "University of Tirana", MinGPA = 1.66m, MinYears = 3 },
-                new University { Id = 2, Name = "Polytechnic University", MinGPA = 2.0m, MinYears = 3 },
-                new University { Id = 3, Name = "European University of Tirana", MinGPA = 2.33m, MinYears = 3 }
+                new University { Id = 1, Name = "University of Tirana" },
+                new University { Id = 2, Name = "Polytechnic University" },
+                new University { Id = 3, Name = "European University of Tirana" }
             );
 
             builder.Entity<MasterProgram>().HasData(
                 // University of Tirana
-                new MasterProgram { Id = 1, UniversityId = 1, Name = "Computer Science" },
-                new MasterProgram { Id = 2, UniversityId = 1, Name = "Business Administration" },
-                new MasterProgram { Id = 3, UniversityId = 1, Name = "Law" },
+                new MasterProgram { Id = 1, UniversityId = 1, Name = "Computer Science", MinGPA = 3.0m, MinYears = 3 },
+                new MasterProgram { Id = 2, UniversityId = 1, Name = "Business Administration", MinGPA = 2.5m, MinYears = 3 },
+                new MasterProgram { Id = 3, UniversityId = 1, Name = "Law", MinGPA = 2.8m, MinYears = 4 },
 
                 // Polytechnic
-                new MasterProgram { Id = 4, UniversityId = 2, Name = "Software Engineering" },
-                new MasterProgram { Id = 5, UniversityId = 2, Name = "Civil Engineering" },
-                new MasterProgram { Id = 6, UniversityId = 2, Name = "Electrical Engineering" },
+                new MasterProgram { Id = 4, UniversityId = 2, Name = "Software Engineering", MinGPA = 3.2m, MinYears = 3 },
+                new MasterProgram { Id = 5, UniversityId = 2, Name = "Civil Engineering", MinGPA = 3.0m, MinYears = 3 },
+                new MasterProgram { Id = 6, UniversityId = 2, Name = "Electrical Engineering", MinGPA = 3.0m, MinYears = 3 },
 
                 // European University
-                new MasterProgram { Id = 7, UniversityId = 3, Name = "International Relations" },
-                new MasterProgram { Id = 8, UniversityId = 3, Name = "Economics" },
-                new MasterProgram { Id = 9, UniversityId = 3, Name = "Psychology" }
+                new MasterProgram { Id = 7, UniversityId = 3, Name = "International Relations", MinGPA = 2.8m, MinYears = 3 },
+                new MasterProgram { Id = 8, UniversityId = 3, Name = "Economics", MinGPA = 2.7m, MinYears = 3 },
+                new MasterProgram { Id = 9, UniversityId = 3, Name = "Psychology", MinGPA = 2.5m, MinYears = 3 }
             );
         }
     }

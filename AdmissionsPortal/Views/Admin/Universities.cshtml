@@ -7,26 +7,51 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Universities & Programs</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary">← Back</a>
+        <div class="d-flex gap-2">
+            <a asp-action="CreateUniversity" class="btn btn-primary">+ Add University</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">← Back</a>
+        </div>
     </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
 
     @foreach (var uni in Model)
     {
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>@uni.Name</strong>
-                <span class="text-muted">
-                    Min GPA: @uni.MinGPA.ToString("F1") |
-                    Min Years: @uni.MinYears
-                </span>
+                <div class="d-flex gap-2 align-items-center">
+                    <a asp-action="EditUniversity" asp-route-id="@uni.Id"
+                       class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a asp-action="ManagePrograms" asp-route-id="@uni.Id"
+                       class="btn btn-sm btn-outline-primary">Programs</a>
+                    <form asp-action="DeleteUniversity" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@uni.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete this university? This cannot be undone.')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
             </div>
             <div class="card-body">
-                <ul class="mb-0">
-                    @foreach (var program in uni.MasterPrograms)
-                    {
-                        <li>@program.Name</li>
-                    }
-                </ul>
+                @if (uni.MasterPrograms.Any())
+                {
+                    <ul class="mb-0">
+                        @foreach (var program in uni.MasterPrograms)
+                        {
+                            <li>@program.Name</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No programs yet.</p>
+                }
             </div>
         </div>
     }

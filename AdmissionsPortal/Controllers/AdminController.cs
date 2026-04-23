@@ -146,6 +146,126 @@ namespace AdmissionsPortal.Controllers
             return View(unis);
         }
 
+        // ── GET /Admin/EditUniversity/1 ───────────────────────────────────────────────
+        public async Task<IActionResult> EditUniversity(int id)
+        {
+            var uni = await _db.Universities.FindAsync(id);
+            if (uni == null) return NotFound();
+
+            var vm = new UniversityViewModel
+            {
+                Id = uni.Id,
+                Name = uni.Name
+            };
+            return View(vm);
+        }
+
+        // ── POST /Admin/EditUniversity ────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUniversity(UniversityViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var uni = await _db.Universities.FindAsync(vm.Id);
+            if (uni == null) return NotFound();
+
+            uni.Name = vm.Name;
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "University updated successfully.";
+            return RedirectToAction(nameof(Universities));
+        }
+
+        // ── GET /Admin/CreateUniversity ───────────────────────────────────────────────
+        public IActionResult CreateUniversity()
+        {
+            return View(new UniversityViewModel());
+        }
+
+        // ── POST /Admin/CreateUniversity ──────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUniversity(UniversityViewModel vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            _db.Universities.Add(new University
+            {
+                Name = vm.Name
+            });
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "University created successfully.";
+            return RedirectToAction(nameof(Universities));
+        }
+
+        // ── POST /Admin/DeleteUniversity ──────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUniversity(int id)
+        {
+            var uni = await _db.Universities
+                .Include(u => u.MasterPrograms)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (uni == null) return NotFound();
+
+            _db.Universities.Remove(uni);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "University deleted.";
+            return RedirectToAction(nameof(Universities));
+        }
+
+        // ── GET /Admin/ManagePrograms/1 ───────────────────────────────────────────────
+        public async Task<IActionResult> ManagePrograms(int id)
+        {
+            var uni = await _db.Universities
+                .Include(u => u.MasterPrograms)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (uni == null) return NotFound();
+
+            ViewBag.University = uni;
+            return View(uni.MasterPrograms.ToList());
+        }
+
+        // ── POST /Admin/AddProgram ────────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProgram(MasterProgramViewModel vm)
+        {
+            if (!ModelState.IsValid)
+                return RedirectToAction(nameof(ManagePrograms), new { id = vm.UniversityId });
+
+            _db.MasterPrograms.Add(new MasterProgram
+            {
+                UniversityId = vm.UniversityId,
+                Name = vm.Name,
+                MinGPA = vm.MinGPA,    
+                MinYears = vm.MinYears
+            });
+
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Program added.";
+            return RedirectToAction(nameof(ManagePrograms), new { id = vm.UniversityId });
+        }
+
+        // ── POST /Admin/DeleteProgram ─────────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProgram(int id, int universityId)
+        {
+            var program = await _db.MasterPrograms.FindAsync(id);
+            if (program == null) return NotFound();
+
+            _db.MasterPrograms.Remove(program);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = "Program deleted.";
+            return RedirectToAction(nameof(ManagePrograms), new { id = universityId });
+        }
+
         // ── Helpers ───────────────────────────────────────────────────────────
         private async Task<IEnumerable<SelectListItem>> GetUniversityList()
         {

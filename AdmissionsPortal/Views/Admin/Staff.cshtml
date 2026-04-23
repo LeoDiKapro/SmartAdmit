@@ -5,7 +5,11 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>University Staff</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back</a>
+    </div>
+    <div class="d-flex justify-content-end mb-4">
         <a asp-action="CreateStaff" class="btn btn-primary">+ Create Staff Account</a>
+    
     </div>
 
     @if (TempData["Success"] != null)
