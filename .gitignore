@@ -364,3 +364,8 @@ FodyWeavers.xsd
 
 # Secret files
 appsettings.Development.json
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
