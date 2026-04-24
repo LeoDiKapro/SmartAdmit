@@ -1,5 +1,6 @@
 using AdmissionsPortal.Data;
 using AdmissionsPortal.Models;
+using AdmissionsPortal.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ScoringService>();
 
 var app = builder.Build();
 

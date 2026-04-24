@@ -3,6 +3,7 @@ using System;
 using AdmissionsPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AdmissionsPortal.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260424151211_AddRankingFieldsAndRejectLetter")]
+    partial class AddRankingFieldsAndRejectLetter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
@@ -360,43 +363,6 @@ namespace AdmissionsPortal.Migrations
                         });
                 });
 
-            modelBuilder.Entity("AdmissionsPortal.Models.ScoringWeights", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("DiplomaBonus")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("DocumentBonus")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("GPAWeight")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("LanguageBonus")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("LanguageWeight")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("MasterProgramId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("RecommendationBonus")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("YearsWeight")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MasterProgramId");
-
-                    b.ToTable("ScoringWeights");
-                });
-
             modelBuilder.Entity("AdmissionsPortal.Models.University", b =>
                 {
                     b.Property<int>("Id")
@@ -625,17 +591,6 @@ namespace AdmissionsPortal.Migrations
                         .IsRequired();
 
                     b.Navigation("University");
-                });
-
-            modelBuilder.Entity("AdmissionsPortal.Models.ScoringWeights", b =>
-                {
-                    b.HasOne("AdmissionsPortal.Models.MasterProgram", "MasterProgram")
-                        .WithMany()
-                        .HasForeignKey("MasterProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MasterProgram");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

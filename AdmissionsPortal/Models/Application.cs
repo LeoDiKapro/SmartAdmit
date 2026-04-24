@@ -61,6 +61,12 @@ namespace AdmissionsPortal.Models
         public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReviewedAt { get; set; }
 
+        [StringLength(500)]
+        public string? RejectionReason { get; set; }
+
+        [StringLength(1000)]
+        public string? RepNotes { get; set; }
+
         // Navigation
         public ICollection<Document> Documents { get; set; } = new List<Document>();
     }

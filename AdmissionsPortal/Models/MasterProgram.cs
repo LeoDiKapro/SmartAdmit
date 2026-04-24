@@ -20,6 +20,8 @@ namespace AdmissionsPortal.Models
         [Range(1, 10)]
         [Display(Name = "Minimum Years of Study")]
         public int MinYears { get; set; }
+        public int? AvailableSpots { get; set; }
+        public decimal? MinScore { get; set; }
 
         public int UniversityId { get; set; }
         public University University { get; set; } = null!;

@@ -13,6 +13,7 @@ namespace AdmissionsPortal.Data
         public DbSet<Application> Applications { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<ApplicationLanguage> ApplicationLanguages { get; set; }
+        public DbSet<ScoringWeights> ScoringWeights { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
