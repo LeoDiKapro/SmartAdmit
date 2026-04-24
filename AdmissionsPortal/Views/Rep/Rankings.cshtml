@@ -1,0 +1,169 @@
+﻿@using AdmissionsPortal.Services
+@model List<ScoreResult>
+
+@{
+    ViewData["Title"] = "Rankings";
+    var program = ViewBag.Program as AdmissionsPortal.Models.MasterProgram;
+    var weights = ViewBag.Weights as AdmissionsPortal.Models.ScoringWeights;
+    var spots = (int?)ViewBag.Spots;
+    var minScore = (decimal?)ViewBag.MinScore;
+}
+
+<div class="container mt-4">
+    <a asp-action="Dashboard" class="btn btn-outline-secondary mb-3">← Back</a>
+    <h2 class="mb-1">@program!.Name — Rankings</h2>
+    <p class="text-muted mb-4">
+        Min GPA: @program.MinGPA.ToString("F1") |
+        Min Years: @program.MinYears
+        @if (spots.HasValue)
+        {
+            <span>| Available Spots: <strong>@spots</strong></span>
+        }
+    </p>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-8">
+            @if (!Model.Any())
+            {
+                <p class="text-muted">No applications for this program yet.</p>
+            }
+            else
+            {
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Rank</th>
+                            <th>Applicant</th>
+                            <th>GPA</th>
+                            <th>Score</th>
+                            <th>Percentile</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var result = Model[i];
+                            var app = result.Application;
+
+                            // Color coding
+                            string rowColor = "";
+                            if (spots.HasValue && i < spots.Value)
+                                rowColor = "table-success";   // in cutoff zone
+                            else if (minScore.HasValue && result.TotalScore < minScore.Value)
+                                rowColor = "table-danger";    // below min score
+                            else if (spots.HasValue && i == spots.Value)
+                                rowColor = "table-warning";   // borderline
+
+                            <tr class="@rowColor">
+                                <td><strong>#@result.Rank</strong></td>
+                                <td>@app.Student.FullName</td>
+                                <td>@app.GPA.ToString("F2")</td>
+                                <td>
+                                    <strong>@result.TotalScore.ToString("F2")</strong>
+                                    <br />
+                                    <small class="text-muted">@result.Breakdown</small>
+                                </td>
+                                <td>Top @result.Percentile%</td>
+                                <td>
+                                    @{
+                                        var badge = app.Status switch
+                                        {
+                                            AdmissionsPortal.Models.ApplicationStatus.UnderReview => "bg-warning text-dark",
+                                            AdmissionsPortal.Models.ApplicationStatus.Accepted => "bg-success",
+                                            AdmissionsPortal.Models.ApplicationStatus.AutoRejected => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @badge">@app.Status</span>
+                                </td>
+                                <td>
+                                    <a asp-action="ApplicationDetail" asp-route-id="@app.Id"
+                                       class="btn btn-sm btn-outline-secondary">View</a>
+                                </td>
+                            </tr>
+                            @if (spots.HasValue && i == spots.Value - 1 && i < Model.Count - 1)
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-danger fw-bold py-1"
+                                        style="border-top: 3px dashed #dc3545; font-size:0.85rem;">
+                                        ── CUTOFF LINE (@spots spots available) ──
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Scoring Weights</h5>
+                    <p class="text-muted small">Must add up to 100%</p>
+
+                    <form asp-action="UpdateWeights" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="Id" value="@weights!.Id" />
+                        <input type="hidden" name="MasterProgramId" value="@program.Id" />
+
+                        <div class="mb-2">
+                            <label class="form-label small">GPA Weight (%)</label>
+                            <input type="number" name="GPAWeight" class="form-control form-control-sm"
+                                   value="@weights.GPAWeight" min="0" max="100" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Years Weight (%)</label>
+                            <input type="number" name="YearsWeight" class="form-control form-control-sm"
+                                   value="@weights.YearsWeight" min="0" max="100" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Language Weight (%)</label>
+                            <input type="number" name="LanguageWeight" class="form-control form-control-sm"
+                                   value="@weights.LanguageWeight" min="0" max="100" />
+                        </div>
+
+                        <hr />
+                        <p class="text-muted small">Bonus Points</p>
+
+                        <div class="mb-2">
+                            <label class="form-label small">Per Extra Language</label>
+                            <input type="number" name="LanguageBonus" class="form-control form-control-sm"
+                                   value="@weights.LanguageBonus" step="0.1" min="0" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Completed Diploma</label>
+                            <input type="number" name="DiplomaBonus" class="form-control form-control-sm"
+                                   value="@weights.DiplomaBonus" step="0.1" min="0" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Per Rec Letter</label>
+                            <input type="number" name="RecommendationBonus" class="form-control form-control-sm"
+                                   value="@weights.RecommendationBonus" step="0.1" min="0" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Complete Documents</label>
+                            <input type="number" name="DocumentBonus" class="form-control form-control-sm"
+                                   value="@weights.DocumentBonus" step="0.1" min="0" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm w-100 mt-2">
+                            Update Weights
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

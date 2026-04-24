@@ -1,0 +1,261 @@
+﻿@using AdmissionsPortal.Services
+@model AdmissionsPortal.Models.Application
+
+@{
+    ViewData["Title"] = "Application Detail";
+    var score = ViewBag.ScoreResult as ScoreResult;
+}
+
+<div class="container mt-4">
+    <a asp-action="Rankings" asp-route-programId="@Model.MasterProgramId"
+       class="btn btn-outline-secondary mb-3">← Back to Rankings</a>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row g-4">
+
+        <div class="col-md-7">
+            <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">@Model.Student.FullName</h4>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">Email</dt>
+                        <dd class="col-sm-7">@Model.Student.Email</dd>
+
+                        <dt class="col-sm-5">Phone</dt>
+                        <dd class="col-sm-7">@(Model.Student.PhoneNumber2 ?? "—")</dd>
+
+                        <dt class="col-sm-5">Date of Birth</dt>
+                        <dd class="col-sm-7">
+                            @(Model.Student.DateOfBirth?.ToString("dd MMM yyyy") ?? "—")
+                        </dd>
+
+                        <dt class="col-sm-5">Nationality</dt>
+                        <dd class="col-sm-7">@(Model.Student.Nationality ?? "—")</dd>
+
+                        <dt class="col-sm-5">National ID</dt>
+                        <dd class="col-sm-7">@(Model.Student.NationalId ?? "—")</dd>
+
+                        <dt class="col-sm-5">Address</dt>
+                        <dd class="col-sm-7">
+                            @(Model.Student.Address ?? "—"),
+                            @(Model.Student.City ?? ""),
+                            @(Model.Student.Country ?? "")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Application Info</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">University</dt>
+                        <dd class="col-sm-7">@Model.University.Name</dd>
+
+                        <dt class="col-sm-5">Program</dt>
+                        <dd class="col-sm-7">@Model.MasterProgram.Name</dd>
+
+                        <dt class="col-sm-5">GPA</dt>
+                        <dd class="col-sm-7">@Model.GPA.ToString("F2")</dd>
+
+                        <dt class="col-sm-5">Years of Study</dt>
+                        <dd class="col-sm-7">@Model.StudyYears</dd>
+
+                        <dt class="col-sm-5">Diploma Status</dt>
+                        <dd class="col-sm-7">@Model.DiplomaStatus</dd>
+
+                        <dt class="col-sm-5">Mother Tongue</dt>
+                        <dd class="col-sm-7">@Model.MotherTongue</dd>
+
+                        <dt class="col-sm-5">Submitted</dt>
+                        <dd class="col-sm-7">@Model.SubmittedAt.ToString("dd MMM yyyy HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Languages</h5>
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Language</th>
+                                <th>Level</th>
+                                <th>Certificate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var lang in Model.Languages)
+                            {
+                                <tr>
+                                    <td>@lang.Language</td>
+                                    <td>@lang.Level</td>
+                                    <td>
+                                        @if (lang.CertificatePath != null)
+                                        {
+                                            <a href="/@lang.CertificatePath" target="_blank"
+                                               class="btn btn-sm btn-outline-primary">View</a>
+                                        }
+                                        else
+                                        {
+
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                    <h5 class="mb-3">Documents</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <li class="list-group-item bg-transparent d-flex justify-content-between">
+                                <span>
+                                    <span class="badge bg-secondary me-2">@doc.Type</span>
+                                    @doc.FileName
+                                </span>
+                                <a href="/@doc.FilePath" target="_blank"
+                                   class="btn btn-sm btn-outline-primary">View</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+
+
+            @if (score != null)
+            {
+                <div class="card border-0 mb-3" style="background:#e8f5e9;">
+                    <div class="card-body">
+                        <h5 class="mb-3">Score Breakdown</h5>
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td>GPA Score</td>
+                                <td class="text-end fw-bold">@score.GPAScore.ToString("F2")</td>
+                            </tr>
+                            <tr>
+                                <td>Years Score</td>
+                                <td class="text-end fw-bold">@score.YearsScore.ToString("F2")</td>
+                            </tr>
+                            <tr>
+                                <td>Language Score</td>
+                                <td class="text-end fw-bold">@score.LanguageScore.ToString("F2")</td>
+                            </tr>
+                            @if (score.LanguageBonus > 0)
+                            {
+                                <tr>
+                                    <td>Language Bonus</td>
+                                    <td class="text-end text-success fw-bold">+@score.LanguageBonus.ToString("F2")</td>
+                                </tr>
+                            }
+                            @if (score.DiplomaBonus > 0)
+                            {
+                                <tr>
+                                    <td>Diploma Bonus</td>
+                                    <td class="text-end text-success fw-bold">+@score.DiplomaBonus.ToString("F2")</td>
+                                </tr>
+                            }
+                            @if (score.RecommendationBonus > 0)
+                            {
+                                <tr>
+                                    <td>Rec Letters Bonus</td>
+                                    <td class="text-end text-success fw-bold">+@score.RecommendationBonus.ToString("F2")</td>
+                                </tr>
+                            }
+                            @if (score.DocumentBonus > 0)
+                            {
+                                <tr>
+                                    <td>Documents Bonus</td>
+                                    <td class="text-end text-success fw-bold">+@score.DocumentBonus.ToString("F2")</td>
+                                </tr>
+                            }
+                            <tr class="table-active">
+                                <td><strong>Total Score</strong></td>
+                                <td class="text-end"><strong>@score.TotalScore.ToString("F2")</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            @if (Model.Status == AdmissionsPortal.Models.ApplicationStatus.UnderReview)
+            {
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body">
+                        <h5 class="mb-3">Decision</h5>
+
+                        <form asp-action="Accept" asp-route-id="@Model.Id" method="post" class="mb-2">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success w-100"
+                                    onclick="return confirm('Accept this application?')">
+                                ✓ Accept
+                            </button>
+                        </form>
+
+                        <form asp-action="Reject" asp-route-id="@Model.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="mb-2">
+                                <textarea name="rejectionReason" class="form-control"
+                                          rows="2" placeholder="Rejection reason (optional)"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100"
+                                    onclick="return confirm('Reject this application?')">
+                                ✕ Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body">
+                        <h5>Decision</h5>
+                        @{
+                            var badge = Model.Status switch
+                            {
+                                AdmissionsPortal.Models.ApplicationStatus.Accepted => "bg-success",
+                                AdmissionsPortal.Models.ApplicationStatus.AutoRejected => "bg-danger",
+                                _ => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @badge fs-6">@Model.Status</span>
+                        @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                        {
+                            <p class="text-muted mt-2 mb-0">
+                                <small>Reason: @Model.RejectionReason</small>
+                            </p>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="mb-3">Internal Notes</h5>
+                    <form asp-action="SaveNotes" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <textarea name="repNotes" class="form-control mb-2" rows="4"
+                                  placeholder="Add private notes about this applicant...">@Model.RepNotes</textarea>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                            Save Notes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

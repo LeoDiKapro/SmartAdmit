@@ -69,6 +69,8 @@ namespace AdmissionsPortal.Controllers
             {
                 if (User.IsInRole("Student"))
                     return RedirectToAction("Dashboard", "Application");
+                else if (User.IsInRole("UniversityRep"))
+                    return RedirectToAction("Dashboard", "Rep");
                 else if (User.IsInRole("Admin"))
                     return RedirectToAction("Index", "Admin");
             }
@@ -98,6 +100,8 @@ namespace AdmissionsPortal.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (await _userManager.IsInRoleAsync(user!, "Student"))
                     return RedirectToAction("Dashboard", "Application");
+                else if (await _userManager.IsInRoleAsync(user!, "UniversityRep"))
+                    return RedirectToAction("Dashboard", "Rep");
                 else if (await _userManager.IsInRoleAsync(user!, "Admin"))
                     return RedirectToAction("Index", "Admin");
                 else

@@ -1,0 +1,78 @@
+﻿@model IEnumerable<AdmissionsPortal.Models.Application>
+
+@{
+    ViewData["Title"] = "Rep Dashboard";
+    var university = ViewBag.University as AdmissionsPortal.Models.University;
+    var programs = ViewBag.Programs as List<AdmissionsPortal.Models.MasterProgram>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-1">@university!.Name</h2>
+    <p class="text-muted mb-4">Admissions Dashboard</p>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card text-center border-0 bg-light">
+                <div class="card-body">
+                    <h2 class="fw-bold">@ViewBag.Total</h2>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center border-0 h-100" style="background:#fff8e1;">
+                <div class="card-body">
+                    <h2 class="fw-bold text-warning">@ViewBag.UnderReview</h2>
+                    <small class="text-muted">Under Review</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center border-0 h-100" style="background:#e8f5e9;">
+                <div class="card-body">
+                    <h2 class="fw-bold text-success">@ViewBag.Accepted</h2>
+                    <small class="text-muted">Accepted</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center border-0 h-100" style="background:#ffebee;">
+                <div class="card-body">
+                    <h2 class="fw-bold text-danger">@ViewBag.Rejected</h2>
+                    <small class="text-muted">Rejected</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Rankings by Program</h4>
+    <div class="row g-3">
+        @foreach (var program in programs!)
+        {
+            var programApps = Model.Where(a => a.MasterProgramId == program.Id).ToList();
+            <div class="col-md-4">
+                <div class="card h-100 border-0 bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">@program.Name</h5>
+                        <p class="text-muted mb-1">
+                            <small>Min GPA: @program.MinGPA.ToString("F1") | Min Years: @program.MinYears</small>
+                        </p>
+                        @if (program.AvailableSpots.HasValue)
+                        {
+                            <p class="text-muted mb-2">
+                                <small>Available Spots: @program.AvailableSpots</small>
+                            </p>
+                        }
+                        <p class="mb-3">
+                            <span class="badge bg-secondary">@programApps.Count applications</span>
+                        </p>
+                        <a asp-action="Rankings" asp-route-programId="@program.Id"
+                               class="btn btn-primary btn-sm w-100">
+                            View Rankings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
