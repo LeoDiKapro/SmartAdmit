@@ -31,6 +31,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ScoringService>();
+builder.Services.AddHttpClient<ClaudeService>();
 
 var app = builder.Build();
 

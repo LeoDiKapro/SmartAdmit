@@ -69,7 +69,107 @@
         <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-secondary">Edit Profile</a>
     </div>
 
-    
+    <button onclick="toggleChat()" id="chatToggleBtn"
+            style="position:fixed; bottom:24px; right:24px; width:56px; height:56px;
+        border-radius:50%; background:#0d6efd; color:white; border:none;
+        font-size:24px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+        cursor:pointer; z-index:1000;">
+        💬
+    </button>
+
+    <div id="chatWindow"
+         style="display:none; position:fixed; bottom:90px; right:24px;
+        width:360px; height:480px; background:white; border-radius:16px;
+        box-shadow:0 8px 32px rgba(0,0,0,0.2); z-index:1000;
+        flex-direction:column; overflow:hidden;">
+        <div style="background:#0d6efd; color:white; padding:14px 16px;
+            display:flex; justify-content:space-between; align-items:center;">
+            <span>Admissions Advisor</span>
+            <button onclick="toggleChat()"
+                    style="background:none; border:none; color:white;
+                font-size:18px; cursor:pointer;">
+                ✕
+            </button>
+        </div>
+
+        <div id="chatMessages"
+             style="flex:1; overflow-y:auto; padding:12px;
+            display:flex; flex-direction:column; gap:8px;">
+            <div style="background:#e3f2fd; border-radius:8px; padding:8px 12px;">
+                <small class="fw-bold">Advisor</small>
+                <p class="mb-0 small">
+                    Hi @ViewBag.StudentName! I'm your admissions advisor.
+                    Ask me anything about programs, requirements, or your chances!
+                </p>
+            </div>
+        </div>
+
+        <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px;">
+            <input type="text" id="chatInput" class="form-control form-control-sm"
+                   placeholder="Ask me anything..." />
+            <button class="btn btn-primary btn-sm" onclick="sendMessage()" id="sendBtn">
+                Send
+            </button>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+                const history = [];
+                let isOpen = false;
+
+                function toggleChat() {
+                    isOpen = !isOpen;
+                    const win = document.getElementById('chatWindow');
+                    win.style.display = isOpen ? 'flex' : 'none';
+                    if (isOpen) document.getElementById('chatInput').focus();
+                }
+
+                async function sendMessage() {
+                    const input   = document.getElementById('chatInput');
+                    const sendBtn = document.getElementById('sendBtn');
+                    const text    = input.value.trim();
+                    if (!text) return;
+
+                    appendMessage('You', text, '#f0f4ff');
+                    history.push({ Role: 'user', Content: text });
+                    input.value      = '';
+                    sendBtn.disabled = true;
+                    sendBtn.textContent = '...';
+
+                    try {
+                        const response = await fetch('/Application/Chat', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ Messages: history })
+                        });
+                        const data = await response.json();
+                        appendMessage('Advisor', data.reply, '#e3f2fd');
+                        history.push({ Role: 'assistant', Content: data.reply });
+                    } catch {
+                        appendMessage('Advisor', 'Something went wrong. Try again.', '#ffebee');
+                    }
+
+                    sendBtn.disabled    = false;
+                    sendBtn.textContent = 'Send';
+                }
+
+                function appendMessage(sender, text, bg) {
+                    const messages = document.getElementById('chatMessages');
+                    const div = document.createElement('div');
+                    div.style.cssText = `background:${bg}; border-radius:8px; padding:8px 12px;`;
+                    div.innerHTML = `<small class="fw-bold">${sender}</small>
+                                     <p class="mb-0 small">${text}</p>`;
+                    messages.appendChild(div);
+                    messages.scrollTop = messages.scrollHeight;
+                }
+
+                document.getElementById('chatInput').addEventListener('keypress', e => {
+                    if (e.key === 'Enter') sendMessage();
+                });
+        </script>
+    }
+
     <h4 class="mb-3">My Applications</h4>
 
     @if (!Model.Any())
@@ -107,6 +207,7 @@
                                     AdmissionsPortal.Models.ApplicationStatus.Draft => "bg-secondary",
                                     AdmissionsPortal.Models.ApplicationStatus.UnderReview => "bg-warning text-dark",
                                     AdmissionsPortal.Models.ApplicationStatus.AutoRejected => "bg-danger",
+                                    AdmissionsPortal.Models.ApplicationStatus.Rejected => "bg-danger",
                                     AdmissionsPortal.Models.ApplicationStatus.Accepted => "bg-success",
                                     AdmissionsPortal.Models.ApplicationStatus.Withdrawn => "bg-secondary",
                                     _ => "bg-secondary"

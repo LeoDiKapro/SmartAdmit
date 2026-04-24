@@ -1,5 +1,6 @@
 ﻿using AdmissionsPortal.Data;
 using AdmissionsPortal.Models;
+using AdmissionsPortal.Services;
 using AdmissionsPortal.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,13 +17,17 @@ namespace AdmissionsPortal.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
+        private readonly ClaudeService _claude;
+
         public ApplicationController(AppDbContext db,
                                      UserManager<AppUser> userManager,
-                                     IWebHostEnvironment env)
+                                     IWebHostEnvironment env,
+                                     ClaudeService claude)
         {
             _db = db;
             _userManager = userManager;
             _env = env;
+            _claude = claude;
         }
 
         // GET /Application/Apply 
@@ -317,7 +322,61 @@ namespace AdmissionsPortal.Controllers
 
             return RedirectToAction(nameof(Dashboard));
         }
+        // ── POST /Application/Chat ────────────────────────────────────────────────────
+        [HttpPost]
+        public async Task<IActionResult> Chat([FromBody] ChatRequest request)
+        {
+            var student = await _userManager.GetUserAsync(User);
 
+            var apps = await _db.Applications
+                .Include(a => a.University)
+                .Include(a => a.MasterProgram)
+                .Where(a => a.StudentId == student!.Id)
+                .ToListAsync();
+
+            var languages = await _db.ApplicationLanguages
+                .Where(l => l.Application.StudentId == student!.Id)
+                .Select(l => $"{l.Language} ({l.Level})")
+                .Distinct()
+                .ToListAsync();
+
+            var allPrograms = await _db.MasterPrograms
+                .Include(p => p.University)
+                .Select(p => $"{p.Name} at {p.University.Name} " +
+                             $"(Min GPA: {p.MinGPA}, Min Years: {p.MinYears})")
+                .ToListAsync();
+
+            var studentGpa = apps.Any() ? apps.Max(a => a.GPA) : 0;
+            var studentYears = apps.Any() ? apps.Max(a => a.StudyYears) : 0;
+
+                    var systemPrompt = $"""
+                You are a friendly university admissions advisor chatbot helping a student
+                find the best Master's program. Be concise, encouraging and specific.
+                Keep responses to 2-4 sentences unless the student asks for more detail.
+
+                Student Profile:
+                Name: {student!.FullName}
+                GPA: {studentGpa:F2} / 4.0
+                Years of Study: {studentYears}
+                Languages: {string.Join(", ", languages.Any() ? languages : new List<string> { "Not specified" })}
+
+                Available Programs:
+                {string.Join("\n", allPrograms)}
+
+                Current Applications:
+                {(apps.Any() ? string.Join("\n", apps.Select(a => $"- {a.MasterProgram.Name} at {a.University.Name} ({a.Status})")) : "None yet")}
+
+                Help the student understand their chances, which programs suit them best,
+                and what they can do to improve their application.
+                """;
+
+            var history = request.Messages
+                .Select(m => (m.Role, m.Content))
+                .ToList();
+
+            var reply = await _claude.Chat(history, systemPrompt);
+            return Ok(new { reply });
+        }
         // ── GET /Application/Dashboard ───────────────────────────────────────────────
         public async Task<IActionResult> Dashboard()
         {
@@ -343,5 +402,14 @@ namespace AdmissionsPortal.Controllers
 
             return View(apps);
         }
+    }
+    public class ChatMessage
+    {
+        public string Role { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+    }
+    public class ChatRequest
+    {
+        public List<ChatMessage> Messages { get; set; } = new();
     }
 }

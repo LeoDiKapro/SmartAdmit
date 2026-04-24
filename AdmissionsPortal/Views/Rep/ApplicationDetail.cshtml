@@ -7,6 +7,7 @@
 }
 
 <div class="container mt-4">
+    @Html.AntiForgeryToken()
     <a asp-action="Rankings" asp-route-programId="@Model.MasterProgramId"
        class="btn btn-outline-secondary mb-3">← Back to Rankings</a>
 
@@ -135,6 +136,60 @@
 
         <div class="col-md-5">
 
+            <div class="card border-0 mb-3" style="background:#e3f2fd;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0"> AI Summary</h5>
+                        <button class="btn btn-primary btn-sm"
+                                onclick="generateSummary(@Model.Id)"
+                                id="summaryBtn">
+                            Generate Summary
+                        </button>
+                    </div>
+                    <div id="summaryContent" class="mb-0 text-muted small">
+                        Click "Generate Summary" to get an AI analysis of this applicant.
+                    </div>
+                </div>
+            </div>
+
+            @section Scripts {
+                <script>
+                    async function generateSummary(id) {
+                    const btn     = document.getElementById('summaryBtn');
+                    const content = document.getElementById('summaryContent');
+
+                    btn.disabled        = true;
+                    btn.textContent     = 'Generating...';
+                    content.textContent = 'Analyzing applicant...';
+
+                    // Get the token from the hidden input
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                    try {
+                        const response = await fetch(`/Rep/GenerateSummary/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error: ${response.status}`);
+                        }
+
+                        const data          = await response.json();
+                        content.textContent = data.summary;
+                        btn.textContent     = 'Regenerate';
+                    } catch (err) {
+                        content.textContent = `Failed: ${err.message}. Please try again.`;
+                        btn.textContent     = 'Generate Summary';
+                    }
+
+                    btn.disabled = false;
+                }
+                </script>
+            }
 
             @if (score != null)
             {

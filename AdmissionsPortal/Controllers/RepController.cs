@@ -14,15 +14,20 @@ namespace AdmissionsPortal.Controllers
         private readonly AppDbContext _db;
         private readonly UserManager<AppUser> _userManager;
         private readonly ScoringService _scoring;
+        private readonly ClaudeService _claude;
 
         public RepController(AppDbContext db,
                              UserManager<AppUser> userManager,
-                             ScoringService scoring)
+                             ScoringService scoring,
+                             ClaudeService claude)
         {
             _db = db;
             _userManager = userManager;
             _scoring = scoring;
+            _claude = claude;
         }
+
+
 
         // ── GET /Rep/Dashboard ────────────────────────────────────────────────
         public async Task<IActionResult> Dashboard()
@@ -154,12 +159,11 @@ namespace AdmissionsPortal.Controllers
                 .Include(a => a.MasterProgram)
                 .Include(a => a.Documents)
                 .Include(a => a.Languages)
-                .FirstOrDefaultAsync(a => a.Id == id &&
-                                          a.UniversityId == uniId);
+                .FirstOrDefaultAsync(a => a.Id == id && a.UniversityId == uniId);
 
             if (app == null) return NotFound();
 
-            // Calculate score for this application
+            // Calculate score
             var weights = await _db.ScoringWeights
                 .FirstOrDefaultAsync(w => w.MasterProgramId == app.MasterProgramId)
                 ?? new ScoringWeights();
@@ -168,9 +172,59 @@ namespace AdmissionsPortal.Controllers
                 new List<Application> { app }, weights,
                 app.MasterProgram.MinGPA, app.MasterProgram.MinYears);
 
-            ViewBag.ScoreResult = scored.FirstOrDefault();
+            var scoreResult = scored.FirstOrDefault();
+            ViewBag.ScoreResult = scoreResult;
 
             return View(app);
+        }
+        // ── POST /Rep/GenerateSummary/5 ───────────────────────────────────────────────
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateSummary(int id)
+        {
+            var rep = await _userManager.GetUserAsync(User);
+            var uniId = rep!.UniversityId!.Value;
+
+            var app = await _db.Applications
+                .Include(a => a.Student)
+                .Include(a => a.MasterProgram)
+                .Include(a => a.Documents)
+                .Include(a => a.Languages)
+                .FirstOrDefaultAsync(a => a.Id == id && a.UniversityId == uniId);
+
+            if (app == null) return NotFound();
+
+            var weights = await _db.ScoringWeights
+                .FirstOrDefaultAsync(w => w.MasterProgramId == app.MasterProgramId)
+                ?? new ScoringWeights();
+
+            var scored = _scoring.RankApplications(
+                new List<Application> { app }, weights,
+                app.MasterProgram.MinGPA, app.MasterProgram.MinYears);
+
+            var scoreResult = scored.FirstOrDefault();
+
+            var languages = app.Languages
+                .Select(l => $"{l.Language} ({l.Level})")
+                .ToList();
+
+            var recCount = app.Documents
+                .Count(d => d.Type == DocumentType.RecommendationLetter);
+
+            var summary = await _claude.GenerateApplicationSummary(
+                studentName: app.Student.FullName,
+                gpa: app.GPA,
+                studyYears: app.StudyYears,
+                diplomaStatus: app.DiplomaStatus.ToString(),
+                motherTongue: app.MotherTongue,
+                languages: languages,
+                documentCount: app.Documents.Count,
+                recLetterCount: recCount,
+                programName: app.MasterProgram.Name,
+                totalScore: scoreResult?.TotalScore ?? 0
+            );
+
+            return Ok(new { summary });
         }
 
         // ── POST /Rep/Accept ──────────────────────────────────────────────────
@@ -207,7 +261,7 @@ namespace AdmissionsPortal.Controllers
 
             if (app == null) return NotFound();
 
-            app.Status = ApplicationStatus.AutoRejected;
+            app.Status = ApplicationStatus.Rejected;
             app.RejectionReason = rejectionReason;
             app.ReviewedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
