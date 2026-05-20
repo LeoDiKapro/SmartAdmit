@@ -12,6 +12,10 @@ namespace AdmissionsPortal.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
+        [Display(Name = "Field of Study")]
+        public EducationField Field { get; set; } = EducationField.Other;
+
+        [Required]
         [Range(0.0, 4.0)]
         [Display(Name = "Minimum GPA")]
         public decimal MinGPA { get; set; }

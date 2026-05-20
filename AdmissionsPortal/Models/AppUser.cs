@@ -41,6 +41,9 @@ namespace AdmissionsPortal.Models
         [Display(Name = "Nationality")]
         public string? Nationality { get; set; }
 
+        [Display(Name = "Undergraduate Field of Study")]
+        public EducationField? UndergraduateField { get; set; }
+
         public bool ProfileCompleted { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

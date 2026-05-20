@@ -14,7 +14,7 @@ namespace AdmissionsPortal.Services
             _apiKey = config["Anthropic:ApiKey"]!;
         }
 
-        // ── Core API call ─────────────────────────────────────────────────────
+        //  Core API call 
         private async Task<string> CallClaude(string prompt)
         {
             var request = new
@@ -46,7 +46,7 @@ namespace AdmissionsPortal.Services
                 .GetString() ?? "No response.";
         }
 
-        // ── Feature 1: Application Summary ────────────────────────────────────
+        // Application Summary 
         public async Task<string> GenerateApplicationSummary(
             string studentName,
             decimal gpa,
@@ -80,7 +80,7 @@ namespace AdmissionsPortal.Services
             return await CallClaude(prompt);
         }
 
-        // ── Feature 2: Program Recommender ────────────────────────────────────
+        // Program Recommender 
         public async Task<string> Chat(
         List<(string Role, string Content)> history,
         string systemPrompt)

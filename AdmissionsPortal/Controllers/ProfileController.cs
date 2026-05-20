@@ -30,7 +30,8 @@ namespace AdmissionsPortal.Controllers
                 PhoneNumber2 = user.PhoneNumber2 ?? string.Empty,
                 DateOfBirth = user.DateOfBirth ?? DateTime.Today,
                 NationalId = user.NationalId ?? string.Empty,
-                Nationality = user.Nationality ?? string.Empty
+                Nationality = user.Nationality ?? string.Empty,
+                UndergraduateField = user.UndergraduateField ?? EducationField.Other
             };
             return View(vm);
         }
@@ -53,6 +54,7 @@ namespace AdmissionsPortal.Controllers
             user.DateOfBirth = vm.DateOfBirth;
             user.NationalId = vm.NationalId;
             user.Nationality = vm.Nationality;
+            user.UndergraduateField = vm.UndergraduateField;
             user.ProfileCompleted = true;
 
             await _userManager.UpdateAsync(user);
@@ -73,7 +75,8 @@ namespace AdmissionsPortal.Controllers
                 PhoneNumber2 = user.PhoneNumber2 ?? string.Empty,
                 DateOfBirth = user.DateOfBirth ?? DateTime.Today,
                 NationalId = user.NationalId ?? string.Empty,
-                Nationality = user.Nationality ?? string.Empty
+                Nationality = user.Nationality ?? string.Empty,
+                UndergraduateField = user.UndergraduateField ?? EducationField.Other
             };
             return View(vm);
         }
@@ -96,6 +99,7 @@ namespace AdmissionsPortal.Controllers
             user.DateOfBirth = vm.DateOfBirth;
             user.NationalId = vm.NationalId;
             user.Nationality = vm.Nationality;
+            user.UndergraduateField = vm.UndergraduateField;
 
             await _userManager.UpdateAsync(user);
             TempData["Success"] = "Profile updated successfully.";

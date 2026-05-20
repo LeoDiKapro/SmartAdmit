@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AdmissionsPortal.Models;
+using System.ComponentModel.DataAnnotations;
 
 public class MasterProgramViewModel
 {
@@ -10,6 +11,10 @@ public class MasterProgramViewModel
     [StringLength(200)]
     [Display(Name = "Program Name")]
     public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Field of Study")]
+    public EducationField Field { get; set; }
 
     [Required]
     [Range(0.0, 4.0)]

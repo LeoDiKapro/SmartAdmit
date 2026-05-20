@@ -308,7 +308,7 @@ namespace AdmissionsPortal.Controllers
             if (app.Status != ApplicationStatus.Draft)
                 return RedirectToAction(nameof(Dashboard));
 
-            //  Auto-screening runs HERE 
+            //  Automated pre-screening engine  
             app.Status = (app.GPA < app.MasterProgram.MinGPA || app.StudyYears < app.MasterProgram.MinYears)
                 ? ApplicationStatus.AutoRejected
                 : ApplicationStatus.UnderReview;

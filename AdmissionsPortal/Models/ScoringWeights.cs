@@ -29,6 +29,9 @@ namespace AdmissionsPortal.Models
         [Display(Name = "Bonus for Completed Diploma")]
         public decimal DiplomaBonus { get; set; } = 1.0m;
 
+        [Display(Name = "Bonus for Matching Field of Study")]
+        public decimal FieldMatchBonus { get; set; } = 1.0m;
+
         [Display(Name = "Bonus per Recommendation Letter")]
         public decimal RecommendationBonus { get; set; } = 0.5m;
 

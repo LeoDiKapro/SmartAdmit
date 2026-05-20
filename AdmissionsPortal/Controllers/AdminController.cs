@@ -244,7 +244,8 @@ namespace AdmissionsPortal.Controllers
                 UniversityId = vm.UniversityId,
                 Name = vm.Name,
                 MinGPA = vm.MinGPA,    
-                MinYears = vm.MinYears
+                MinYears = vm.MinYears,
+                Field = vm.Field
             });
 
             await _db.SaveChangesAsync();

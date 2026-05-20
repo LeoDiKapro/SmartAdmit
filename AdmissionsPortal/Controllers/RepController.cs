@@ -84,7 +84,8 @@ namespace AdmissionsPortal.Controllers
                     LanguageBonus = 0.5m,
                     DiplomaBonus = 1.0m,
                     RecommendationBonus = 0.5m,
-                    DocumentBonus = 0.5m
+                    DocumentBonus = 0.5m,
+                    FieldMatchBonus = 1.0m
                 };
                 _db.ScoringWeights.Add(weights);
                 await _db.SaveChangesAsync();
@@ -92,6 +93,7 @@ namespace AdmissionsPortal.Controllers
 
             var applications = await _db.Applications
                 .Include(a => a.Student)
+                .Include(a => a.MasterProgram)
                 .Include(a => a.Documents)
                 .Include(a => a.Languages)
                 .Where(a => a.MasterProgramId == programId &&
@@ -135,6 +137,7 @@ namespace AdmissionsPortal.Controllers
                 existing.DiplomaBonus = weights.DiplomaBonus;
                 existing.RecommendationBonus = weights.RecommendationBonus;
                 existing.DocumentBonus = weights.DocumentBonus;
+                existing.FieldMatchBonus = weights.FieldMatchBonus;
             }
             else
             {

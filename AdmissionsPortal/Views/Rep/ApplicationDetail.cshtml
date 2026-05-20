@@ -209,6 +209,13 @@
                                 <td>Language Score</td>
                                 <td class="text-end fw-bold">@score.LanguageScore.ToString("F2")</td>
                             </tr>
+                            @if (score.FieldMatchBonus > 0)
+                            {
+                                <tr>
+                                    <td>Field Match Bonus</td>
+                                    <td class="text-end text-success fw-bold">+@score.FieldMatchBonus.ToString("F2")</td>
+                                </tr>
+                            }
                             @if (score.LanguageBonus > 0)
                             {
                                 <tr>

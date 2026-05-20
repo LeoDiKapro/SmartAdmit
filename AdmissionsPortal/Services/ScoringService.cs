@@ -17,7 +17,7 @@ namespace AdmissionsPortal.Services
         public decimal DiplomaBonus { get; set; }
         public decimal RecommendationBonus { get; set; }
         public decimal DocumentBonus { get; set; }
-
+        public decimal FieldMatchBonus { get; set; }
         // Final
         public decimal TotalScore { get; set; }
         public int Rank { get; set; }
@@ -33,6 +33,7 @@ namespace AdmissionsPortal.Services
             DiplomaBonus > 0     ? $"Diploma Bonus (+{DiplomaBonus:F2})"  : null,
             RecommendationBonus > 0 ? $"Rec Letters (+{RecommendationBonus:F2})" : null,
             DocumentBonus > 0    ? $"Docs Bonus (+{DocumentBonus:F2})"    : null,
+            FieldMatchBonus > 0     ? $"Field Match (+{FieldMatchBonus:F2})" : null,
         }.Where(s => s != null));
     }
 
@@ -120,6 +121,16 @@ namespace AdmissionsPortal.Services
             result.DocumentBonus = (hasTranscript && hasDiploma && hasExtra)
                 ? weights.DocumentBonus : 0;
 
+            // Field match bonus
+            var program = app.MasterProgram;
+            var studentField = app.Student.UndergraduateField;
+
+            decimal fieldMatchBonus = 0;
+            if (studentField.HasValue && program != null && studentField.Value == program.Field)
+            {
+                fieldMatchBonus = weights.FieldMatchBonus;
+            }
+            result.FieldMatchBonus = fieldMatchBonus;
             // ── Total ─────────────────────────────────────────────────────────
             result.TotalScore = Math.Round(
                 result.GPAScore +
@@ -128,7 +139,8 @@ namespace AdmissionsPortal.Services
                 result.LanguageBonus +
                 result.DiplomaBonus +
                 result.RecommendationBonus +
-                result.DocumentBonus, 2);
+                result.DocumentBonus +
+                result.FieldMatchBonus, 2);
 
             return result;
         }

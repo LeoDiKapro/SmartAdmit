@@ -27,6 +27,15 @@
                         <input type="text" name="Name" class="form-control"
                                placeholder="Program name" required />
                     </div>
+                    <div class="col-md-3">
+                        <select name="Field" class="form-select" required>
+                            <option value="">-- Field --</option>
+                            @foreach (var f in Enum.GetValues<AdmissionsPortal.Models.EducationField>())
+                            {
+                                <option value="@f">@f</option>
+                            }
+                        </select>
+                    </div>
                     <div class="col-md-2">
                         <input type="number" name="MinGPA" class="form-control"
                                placeholder="Min GPA" step="0.1" min="0" max="4" required />
@@ -58,6 +67,7 @@
                         <small class="text-muted ms-2">
                             Min GPA: @program.MinGPA.ToString("F1") |
                             Min Years: @program.MinYears
+                            Field: @program.Field
                         </small>
                     </div>
                     <form asp-action="DeleteProgram" method="post" class="d-inline">

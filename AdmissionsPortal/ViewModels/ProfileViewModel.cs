@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AdmissionsPortal.Models;
 
 namespace AdmissionsPortal.ViewModels
 {
@@ -48,5 +49,9 @@ namespace AdmissionsPortal.ViewModels
         [StringLength(100)]
         [Display(Name = "Nationality")]
         public string Nationality { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Undergraduate Field of Study")]
+        public EducationField UndergraduateField { get; set; }
     }
 }

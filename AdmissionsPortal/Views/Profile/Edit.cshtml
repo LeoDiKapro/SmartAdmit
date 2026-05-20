@@ -70,6 +70,16 @@
                 <input asp-for="NationalId" class="form-control" />
                 <span asp-validation-for="NationalId" class="text-danger"></span>
             </div>
+
+            <div class="col-md-6">
+                <label asp-for="UndergraduateField" class="form-label"></label>
+                <select asp-for="UndergraduateField" class="form-select"
+                        asp-items="Html.GetEnumSelectList<AdmissionsPortal.Models.EducationField>()">
+                    <option value="">-- Select Field --</option>
+                </select>
+                <span asp-validation-for="UndergraduateField" class="text-danger"></span>
+            </div>
+
         </div>
 
         <button type="submit" class="btn btn-primary w-100 mt-4">Save Changes</button>
